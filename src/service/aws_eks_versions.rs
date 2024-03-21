@@ -3,11 +3,7 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 use leptos::{server, ServerFnError};
 use reqwest::{
-    header::{
-        ACCEPT, ACCESS_CONTROL_ALLOW_HEADERS, ACCESS_CONTROL_ALLOW_METHODS,
-        ACCESS_CONTROL_ALLOW_ORIGIN, ACCESS_CONTROL_REQUEST_HEADERS, ACCESS_CONTROL_REQUEST_METHOD,
-        HOST, ORIGIN, USER_AGENT,
-    },
+    header::{ACCEPT, HOST, USER_AGENT},
     Client,
 };
 use serde::{Deserialize, Serialize};

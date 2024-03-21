@@ -84,7 +84,7 @@ async fn get_date(input: &String) -> DateTime<Local> {
         d.parse::<u32>().unwrap(),
     )
     .unwrap()
-    .and_hms_opt(1, 2, 3)
+    .and_hms_opt(1, 1, 1) // I don't need to know the hours/minutes/seconds only the date
     .unwrap();
     return TimeZone::from_utc_datetime(&Local, &naive);
 }
