@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
-use chrono::NaiveDate;
-use leptos::{server, ServerFnError};
+use leptos::server;
+use leptos::ServerFnError;
 use reqwest::{
     header::{ACCEPT, HOST, USER_AGENT},
     Client,
@@ -36,6 +34,7 @@ pub async fn request_docs_from_aws() -> Vec<Version> {
         .await
         .expect("failed to get payload");
     let versions = get_versions_from_response_text(resp).await;
+
     return versions;
 }
 

@@ -7,16 +7,16 @@ use super::{
 };
 use chrono::{DateTime, Local, TimeZone, Utc};
 
-pub struct ProjectHandler<'a> {
-    projects: Vec<Project<'a>>,
+pub struct ProjectHandler {
+    projects: Vec<Project>,
 }
-impl<'a> ProjectHandler<'a> {
-    pub fn new() -> Self {
+impl ProjectHandler {
+    pub async fn new() -> Self {
         Self {
-            projects: get_projects(),
+            projects: get_projects().await.unwrap(),
         }
     }
-    pub async fn get_active_projects(self) -> Vec<Project<'a>> {
+    pub async fn get_active_projects(self) -> Vec<Project> {
         // TODO, use async operator
         // self.projects
         //     .iter()
@@ -32,7 +32,7 @@ impl<'a> ProjectHandler<'a> {
         return active_project;
     }
 
-    pub async fn get_nearly_expired_projects(self) -> Vec<Project<'a>> {
+    pub async fn get_nearly_expired_projects(self) -> Vec<Project> {
         let mut projects = Vec::new();
         for p in self.projects {
             if project_within_month(&p, 6, 12).await {
@@ -42,7 +42,7 @@ impl<'a> ProjectHandler<'a> {
         return projects;
     }
 
-    pub async fn get_close_to_expired_projects(self) -> Vec<Project<'a>> {
+    pub async fn get_close_to_expired_projects(self) -> Vec<Project> {
         let mut projects = Vec::new();
         for p in self.projects {
             if project_within_month(&p, -6, 6).await {
@@ -89,12 +89,12 @@ async fn get_date(input: &String) -> DateTime<Local> {
     return TimeZone::from_utc_datetime(&Local, &naive);
 }
 
-async fn project_within_month<'a>(p: &Project<'a>, from_month: i64, to_month: i64) -> bool {
+async fn project_within_month(p: &Project, from_month: i64, to_month: i64) -> bool {
     let version_result = get_versions().await;
     match version_result {
         Ok(versions) => {
             for version in versions {
-                if version.version == p.eks_version() {
+                if version.version == p.eks_version {
                     let dt = get_date(&version.end_of_extended_support).await;
                     let today = Utc::now();
                     let diff = today.signed_duration_since(&dt);

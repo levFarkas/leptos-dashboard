@@ -1,6 +1,8 @@
 use leptos::*;
 
-use crate::service::{aws_eks_versions::get_versions, project_handler::ProjectHandler};
+use crate::service::{
+    aws_eks_versions::get_versions, project_handler::ProjectHandler, settings::Settings,
+};
 
 #[component]
 pub fn DashBoard() -> impl IntoView {
@@ -21,6 +23,7 @@ pub fn DashBoard() -> impl IntoView {
     create_effect(move |_| {
         spawn_local(async move {
             ProjectHandler::new()
+                .await
                 .get_active_projects()
                 .await
                 .into_iter()
@@ -33,6 +36,7 @@ pub fn DashBoard() -> impl IntoView {
     create_effect(move |_| {
         spawn_local(async move {
             ProjectHandler::new()
+                .await
                 .get_nearly_expired_projects()
                 .await
                 .into_iter()
@@ -45,6 +49,7 @@ pub fn DashBoard() -> impl IntoView {
     create_effect(move |_| {
         spawn_local(async move {
             ProjectHandler::new()
+                .await
                 .get_close_to_expired_projects()
                 .await
                 .into_iter()
@@ -55,28 +60,6 @@ pub fn DashBoard() -> impl IntoView {
     });
 
     view! {
-
-        // <div class="flex flex-row justify-evenly items-center">
-        // {
-        //     move || names().into_iter()
-        //         .map(|name| view! {
-        //             <div class="flex-1 max-w-40 min-h-80 border-8 rounded-lg bg-clip-padding p-4">
-        //             <div class="max-w-40 min-h-10 bg-cyan-700 rounded-lg padding-10 mb-6">
-        //                 Header
-        //             </div>
-        //             <button
-        //                 class="bg-amber-600 hover:bg-sky-700 px-5 py-3 text-white rounded-lg min-h-24 w-28 break-words mb-2"
-        //             >
-        //             {name}
-        //             </button>
-        //             </div>
-        //             }
-        //         )
-        //         .collect::<Vec<_>>()}
-
-        // </div>
-
-
         <main class="my-0 mx-auto text-center">
             <div class="bg-gray-900 text-white font-sans">
                 <div class="flex h-screen">
@@ -95,11 +78,11 @@ pub fn DashBoard() -> impl IntoView {
                             <div class="bg-gray-700 p-4 rounded">
                             <For
                                 each=active_projects
-                                key=|state| state.name()
+                                key=|state| state.name.clone()
                                 let:child
                             >
                                     <div class="flex items-center justify-between mb-2">
-                                        <p>{child.name()        }</p>
+                                        <p>{child.name}</p>
                                         <button class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
                                     </div>
                             </For>
@@ -110,11 +93,11 @@ pub fn DashBoard() -> impl IntoView {
                             <div class="bg-gray-700 p-4 rounded">
                             <For
                                 each=nearly_expired_projects
-                                key=|state| state.name()
+                                key=|state| state.name.clone()
                                 let:child
                             >
                                     <div class="flex items-center justify-between mb-2">
-                                        <p>{child.name()        }</p>
+                                        <p>{child.name}</p>
                                         <button class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
                                     </div>
                             </For>
@@ -125,11 +108,11 @@ pub fn DashBoard() -> impl IntoView {
                             <div class="bg-gray-700 p-4 rounded">
                             <For
                                 each=close_to_expired_projects
-                                key=|state| state.name()
+                                key=|state| state.name.clone()
                                 let:child
                             >
                                     <div class="flex items-center justify-between mb-2">
-                                        <p>{child.name()        }</p>
+                                        <p>{child.name}</p>
                                         <button class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
                                     </div>
                             </For>

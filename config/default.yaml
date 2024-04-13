@@ -1,0 +1,7 @@
+database:
+  host: defaulthost
+  password: defaultpassword
+  username: defaultuser
+  database: defaultdatabase
+
+debug: true

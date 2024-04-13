@@ -1,14 +1,14 @@
-use crate::pages::dashboard::DashBoard;
-use leptos::{html::Div, *};
+use crate::{pages::dashboard::DashBoard, service::settings::Settings};
+use config::ConfigError;
+use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use leptos_use::{use_drop_zone_with_options, UseDropZoneOptions, UseDropZoneReturn};
 
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
-
+    let settings: Result<Settings, ConfigError> = Settings::new();
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
@@ -23,6 +23,13 @@ pub fn App() -> impl IntoView {
                 <Routes>
                     <Route path="" view=HomePage/>
                     <Route path="/dashboard" view=DashBoard/>
+                    // <Route path="/dashboard" view=move || {
+                    //       view! {
+                    //         <DashBoard settings=settings.as_ref().unwrap()/>
+                    //       }
+                    // }/>
+
+
                     <Route path="/demo" view=Demo/>
                     <Route path="/*any" view=NotFound/>
                 </Routes>

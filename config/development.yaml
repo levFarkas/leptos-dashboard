@@ -1,0 +1,5 @@
+database:
+  host: devhost
+  password: devpassword
+  username: devuser
+  database: devdatabase
