@@ -1,6 +1,8 @@
 use leptos::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
 
+use std::fs;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Project {
     pub name: String,
@@ -20,22 +22,7 @@ pub async fn get_projects() -> Result<Vec<Project>, ServerFnError> {
 }
 
 async fn get_projects_from_db() -> Vec<Project> {
-    vec![
-        Project {
-            name: "Project-1".to_string(),
-            eks_version: "1.25".to_string(),
-        },
-        Project {
-            name: "Project-2".to_string(),
-            eks_version: "1.27".to_string(),
-        },
-        Project {
-            name: "Project-3".to_string(),
-            eks_version: "1.24".to_string(),
-        },
-        Project {
-            name: "Project-4".to_string(),
-            eks_version: "1.23".to_string(),
-        },
-    ]
+    let data = fs::read_to_string("/tmp/leptos-dashboard.json").expect("Unable to read file");
+    let projects: Vec<Project> = serde_json::from_str(&data).unwrap();
+    return projects;
 }

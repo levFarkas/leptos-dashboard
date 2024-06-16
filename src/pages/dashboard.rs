@@ -1,8 +1,11 @@
-use leptos::*;
-
-use crate::service::{
-    aws_eks_versions::get_versions, project_handler::ProjectHandler, settings::Settings,
+use crate::{
+    pages::card_component::CardComponent,
+    service::{
+        aws_eks_versions::get_versions, project_handler::ProjectHandler, settings::Settings,
+    },
 };
+use leptos::*;
+use leptos_dom::logging::console_log;
 
 #[component]
 pub fn DashBoard() -> impl IntoView {
@@ -10,6 +13,10 @@ pub fn DashBoard() -> impl IntoView {
     let (active_projects, set_active_projects) = create_signal(Vec::new());
     let (nearly_expired_projects, set_nearly_expired_projects) = create_signal(Vec::new());
     let (close_to_expired_projects, set_close_to_expired_projects) = create_signal(Vec::new());
+    let (edit_mode, set_edit_mode) = create_signal(0);
+    let (edit_project, set_edit_project) = create_signal(0);
+
+    let edit_mode_obj = edit_mode();
 
     create_effect(move |_| {
         spawn_local(async move {
@@ -76,15 +83,14 @@ pub fn DashBoard() -> impl IntoView {
                         <div class="w-1/3 bg-gray-800 p-4">
                             <h2 class="text-lg font-bold mb-4">Active</h2>
                             <div class="bg-gray-700 p-4 rounded">
+
                             <For
                                 each=active_projects
                                 key=|state| state.name.clone()
                                 let:child
                             >
-                                    <div class="flex items-center justify-between mb-2">
-                                        <p>{child.name}</p>
-                                        <button class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
-                                    </div>
+
+                                <CardComponent child active_projects nearly_expired_projects close_to_expired_projects set_active_projects set_nearly_expired_projects set_close_to_expired_projects/>
                             </For>
                             </div>
                         </div>
@@ -96,10 +102,7 @@ pub fn DashBoard() -> impl IntoView {
                                 key=|state| state.name.clone()
                                 let:child
                             >
-                                    <div class="flex items-center justify-between mb-2">
-                                        <p>{child.name}</p>
-                                        <button class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
-                                    </div>
+                                <CardComponent child active_projects nearly_expired_projects close_to_expired_projects set_active_projects set_nearly_expired_projects set_close_to_expired_projects/>
                             </For>
                             </div>
                         </div>
@@ -111,10 +114,7 @@ pub fn DashBoard() -> impl IntoView {
                                 key=|state| state.name.clone()
                                 let:child
                             >
-                                    <div class="flex items-center justify-between mb-2">
-                                        <p>{child.name}</p>
-                                        <button class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
-                                    </div>
+                                <CardComponent child active_projects nearly_expired_projects close_to_expired_projects set_active_projects set_nearly_expired_projects set_close_to_expired_projects/>
                             </For>
                             </div>
                         </div>
@@ -122,6 +122,5 @@ pub fn DashBoard() -> impl IntoView {
                 </div>
             </div>
         </main>
-
     }
 }
