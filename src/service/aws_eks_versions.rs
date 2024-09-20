@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use leptos::server;
 use leptos::ServerFnError;
 use reqwest::{
@@ -5,13 +6,18 @@ use reqwest::{
     Client,
 };
 use serde::{Deserialize, Serialize};
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref VERSIONS: Mutex<Vec<Version>> = Mutex::new(vec![]);
+}
 
 #[server(GetItems, "/api")]
 pub async fn get_versions() -> Result<Vec<Version>, ServerFnError> {
     Ok(request_docs_from_aws().await)
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Version {
     pub version: String,
     pub end_of_standard_support: String,
@@ -19,6 +25,10 @@ pub struct Version {
 }
 
 pub async fn request_docs_from_aws() -> Vec<Version> {
+    let cached_versions = VERSIONS.lock().unwrap().clone();
+    if !cached_versions.is_empty() {
+        return cached_versions;
+    }
     let client = Client::new();
 
     let resp = client
@@ -34,8 +44,10 @@ pub async fn request_docs_from_aws() -> Vec<Version> {
         .await
         .expect("failed to get payload");
     let versions = get_versions_from_response_text(resp).await;
-
-    return versions;
+    for version in versions {
+        VERSIONS.lock().unwrap().push(version);
+    }
+    return VERSIONS.lock().unwrap().clone;
 }
 
 async fn get_versions_from_response_text(resp: String) -> Vec<Version> {
@@ -43,7 +55,7 @@ async fn get_versions_from_response_text(resp: String) -> Vec<Version> {
     let mut table = crop(
         &resp,
         "The following table shows important release",
-        "xreflabel=\"Amazon EKS version FAQs\"",
+        "How many Kubernetes versions are a",
     )
     .await;
     loop {
@@ -51,11 +63,17 @@ async fn get_versions_from_response_text(resp: String) -> Vec<Version> {
         let version = crop_version(&found).await;
         let standard_support = get_standard_support(&table).await;
         let extended_support = get_extended_support(&table).await;
-        table = crop(&table, &version, "<div id=\"version-deprecation\"").await;
         table = crop(
             &table,
-            "<td tabindex=\"-1\"><code class=\"code\">",
-            "<div id=\"version-deprecation\"",
+            &version,
+            "<h2 id=\"version-faqs\">Amazon EKS version FAQs</h2>",
+        )
+        .await;
+
+        table = crop(
+            &table,
+            "<tr>",
+            "<h2 id=\"version-faqs\">Amazon EKS version FAQs</h2>",
         )
         .await;
 
